@@ -34,7 +34,6 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       words: process.env.NUXT_WORDS,
-      RECAPTCHA_SITE_KEY: process.env.NUXT_RECAPTCHA_SITE_KEY,
       version: process.env.NUXT_APP_VERSION,
     },
   },
@@ -68,4 +67,4 @@ export default defineNuxtConfig({
       },
     },
   },
-})
+});

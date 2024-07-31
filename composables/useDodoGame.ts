@@ -277,8 +277,7 @@ function addAyo(position: Vec2, color = WHITE) {
 
 export default function (
   widthOverride: number = canvasWidth(),
-  heightOverride: number = canvasHeight(),
-  recaptcha: any
+  heightOverride: number = canvasHeight()
 ) {
   const config = useRuntimeConfig()
 

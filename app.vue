@@ -4,8 +4,6 @@ import { type KaboomCtx } from 'kaplay';
 const game = ref<KaboomCtx | null>(null);
 
 onMounted(async () => {
-  const recaptcha = useGoogleRecaptcha()
-
   if (import.meta.env.MODE === "development") {
     const eruda = (await import('eruda')).default
     eruda.init()
@@ -31,7 +29,7 @@ const canvasHeight = () => {
     (document.getElementById('anti-landscape-prompt') as HTMLElement).style.display = 'none'
   }
 
-  game.value = useDodoGame(canvasWidth(), canvasHeight(), recaptcha)
+  game.value = useDodoGame(canvasWidth(), canvasHeight())
 
 
   // watch for orientation change
@@ -41,14 +39,14 @@ const canvasHeight = () => {
       (document.getElementById('anti-landscape-prompt') as HTMLElement).style.display = 'flex'
     } else {
       (document.getElementById('anti-landscape-prompt') as HTMLElement).style.display = 'none'
-      game.value = useDodoGame(canvasWidth(), canvasHeight(), recaptcha)
+      game.value = useDodoGame(canvasWidth(), canvasHeight())
     }
   })
 
   // watch for resize
   window.addEventListener('resize', () => {
     if (!isPlatformMobile()) {
-      game.value = useDodoGame(canvasWidth(), canvasHeight(), recaptcha)
+      game.value = useDodoGame(canvasWidth(), canvasHeight())
     }
   })
 })
