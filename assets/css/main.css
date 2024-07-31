@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  overflow: hidden;
+}
+
+.wrapper {
+  @apply w-screen h-screen;
+  @apply flex flex-col items-center justify-center space-y-3;
+  @apply bg-slate-900;
+
+  @apply relative;
+
+  div.frame {
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 1200px;
+    /* min-width: 1200px; */
+  }
+
+  canvas {
+    z-index: 1;
+  }
+}
