@@ -18,11 +18,7 @@ import setGameOverScene from "../game/gameover/scene"
 const storedName =
   (import.meta.client &&
     useStorage("name", localStorage.getItem("name"), localStorage)) ||
-  ref("")
-const storedEmail =
-  (import.meta.client &&
-    useStorage("email", localStorage.getItem("email"), localStorage)) ||
-  ref("")
+  ref("");
 
 let sessionId = ""
 

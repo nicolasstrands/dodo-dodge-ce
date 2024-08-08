@@ -4,7 +4,7 @@ import { type KaboomCtx } from 'kaplay';
 const game = ref<KaboomCtx | null>(null);
 
 onMounted(async () => {
-  if (import.meta.env.MODE === "development") {
+  if (import.meta.dev) {
     const eruda = (await import('eruda')).default
     eruda.init()
   }
