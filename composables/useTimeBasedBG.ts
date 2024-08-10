@@ -24,9 +24,9 @@ export default function () {
     state = "day";
   } else if (hours >= 16 && hours < 18) {
     state = "sunset";
-  } else if (hours >= 18 && hours < 20) {
+  } else if (hours >= 18 && hours < 19) {
     state = "latesunset";
-  } else if (hours >= 20 && hours < 21) {
+  } else if (hours >= 19 && hours < 21) {
     state = "earlynight";
   } else {
     state = "deepnight";
