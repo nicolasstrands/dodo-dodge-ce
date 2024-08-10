@@ -1,3 +1,5 @@
+import timeStates from "../utils/timeStates";
+
 export default function loadSprites() {
   loadSprite("dodo", "sprites/Dodo_10x.png", {
     sliceX: 4,
@@ -22,7 +24,7 @@ export default function loadSprites() {
         loop: false,
       },
     },
-  })
+  });
 
   loadSprite("forest", "tiles/Tileset_Forest_10x.png", {
     sliceX: 4,
@@ -35,7 +37,7 @@ export default function loadSprites() {
         speed: 5,
       },
     },
-  })
+  });
 
   loadSprite("ground", "tiles/Tileset_Cropped_10x.png", {
     sliceX: 2,
@@ -54,12 +56,12 @@ export default function loadSprites() {
         speed: 5,
       },
     },
-  })
+  });
 
   loadSprite("trees", "tiles/Tileset_10x.png", {
     sliceX: 4,
     sliceY: 3,
-  })
+  });
 
   loadSprite("hunter", "sprites/Hunter_10x.png", {
     sliceX: 4,
@@ -72,13 +74,18 @@ export default function loadSprites() {
         speed: 7,
       },
     },
-  })
+  });
 
-  loadSprite("sky", "layers/sky_lightened.png")
-  loadSprite("clouds", "layers/Cloud_10x.png")
-  loadSprite("mountains", "layers/Mountain_10x.png")
+  loadSprite("sky", "layers/sky_lightened.png");
+  loadSprite("clouds", "layers/Cloud_10x.png");
+  loadSprite("mountains", "layers/Mountain_10x.png");
 
-  loadSprite("title", "title.png")
-  loadSprite("mscc-logo", "mscc.png")
-  loadSprite("ayo", "sprites/ayo.png")
+  loadSprite("title", "title.png");
+  loadSprite("mscc-logo", "mscc.png");
+  loadSprite("ayo", "sprites/ayo.png");
+
+  // load all time states backgrounds
+  for (const state of timeStates()) {
+    loadSprite(state, `bgs/${state}.png`);
+  }
 }

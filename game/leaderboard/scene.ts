@@ -14,6 +14,7 @@ export default async function setLeaderboardScene() {
 }
 
 function setScene() {
+  useTimeBasedBG();
   addTitle()
   addGoBackButton()
   onKeyPress("escape", () => {
