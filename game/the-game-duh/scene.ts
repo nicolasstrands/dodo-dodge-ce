@@ -96,6 +96,8 @@ function setScene(
   gameMusic.loop = true
   mainMenuMusic.paused = true
 
+  useTimeBasedBG();
+
   setGravity(1100)
 
   const { versionLabel, scoreLabel, comboLabel } = addHeaderText(

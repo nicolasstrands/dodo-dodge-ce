@@ -26,6 +26,8 @@ function setScene(mainMenuMusic: AudioPlay, gameMusic: AudioPlay) {
   mainMenuMusic.volume = 0.25
   mainMenuMusic.loop = true
 
+  useTimeBasedBG();
+
   addTitle()
   addGoBackButton()
   addFinalScore(score)

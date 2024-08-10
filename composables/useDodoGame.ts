@@ -275,7 +275,7 @@ export default function (
   widthOverride: number = canvasWidth(),
   heightOverride: number = canvasHeight()
 ) {
-  const config = useRuntimeConfig()
+  const config = useRuntimeConfig();
 
   const game = kaplay({
     debug: import.meta.dev ? true : false,
@@ -288,14 +288,14 @@ export default function (
     height: heightOverride,
     pixelDensity: 2,
     plugins: [konamiCodePlugin],
-  })
+  });
 
-  const version = config.public.version
+  const version = config.public.version;
 
-  volume(0.2)
-  loadSounds()
+  volume(0.2);
+  loadSounds();
 
-  loadFont("arcade", "fonts/arcadeclassic.ttf", { size: 120 })
+  loadFont("arcade", "fonts/arcadeclassic.ttf", { size: 120 });
 
   loadShader(
     "saturate",
@@ -312,7 +312,7 @@ export default function (
       return c + vec4(mix(vec3(0), col.rgb, u_time), 0);
     }
   `
-  )
+  );
 
   loadShader(
     "pixelate",
@@ -330,33 +330,33 @@ export default function (
       return c * color;
     }
     `
-  )
+  );
 
-  loadSprites()
+  loadSprites();
 
-  const FLOOR_HEIGHT = 48
+  const FLOOR_HEIGHT = 48;
 
   const gameMusic = play("bgm", {
     loop: true,
     paused: true,
-  })
+  });
 
   const mainMenuMusic = play("slow_bgm", {
     loop: true,
     paused: true,
-  })
+  });
 
-  onKeyPress("m", () => (gameMusic.paused = !gameMusic.paused))
-  onKeyPress("n", () => (mainMenuMusic.paused = !mainMenuMusic.paused))
+  onKeyPress("m", () => (gameMusic.paused = !gameMusic.paused));
+  onKeyPress("n", () => (mainMenuMusic.paused = !mainMenuMusic.paused));
 
   /* Scenes */
-  setLeaderboardScene()
+  setLeaderboardScene();
 
-  setRegistrationScene()
+  setRegistrationScene();
 
-  setMyScoresScene()
+  setMyScoresScene();
 
-  setMainMenuScene(mainMenuMusic, gameMusic, version, FLOOR_HEIGHT)
+  setMainMenuScene(mainMenuMusic, gameMusic, version, FLOOR_HEIGHT);
 
   setGameScene(
     mainMenuMusic,
@@ -367,12 +367,12 @@ export default function (
     score,
     mountainWidth,
     mountainX
-  )
+  );
 
-  setGameOverScene(mainMenuMusic, gameMusic)
+  setGameOverScene(mainMenuMusic, gameMusic);
 
   /* Init game with splash screen */
-  go("splash")
+  go("splash");
 
-  return game
+  return game;
 }

@@ -23,43 +23,46 @@ function setScene(
   version: string,
   floorHeight: number
 ) {
-  let splashTime = 0
-  gameMusic.paused = true
+  let splashTime = 0;
+  gameMusic.paused = true;
 
-  mainMenuMusic.paused = true
-  mainMenuMusic.volume = 0.25
-  mainMenuMusic.loop = true
+  mainMenuMusic.paused = true;
+  mainMenuMusic.volume = 0.25;
+  mainMenuMusic.loop = true;
 
-  addHeaderText(version)
-  const msccLogo = addMSCCLogo(floorHeight)
-  const gameTitle = addGameTitleLogo()
-  addGround(floorHeight)
-  addTrees(floorHeight)
+  useTimeBasedBG();
+
+  addHeaderText(version);
+
+  const msccLogo = addMSCCLogo(floorHeight);
+  const gameTitle = addGameTitleLogo();
+  addGround(floorHeight);
+  addTrees(floorHeight);
 
   onUpdate(() => {
-    setCursor("default")
-    splashTime += dt()
+    setCursor("default");
+    splashTime += dt();
 
     gameTitle.pos.y =
-      Math.cos(splashTime * Math.PI) * 10 + (isPlatformMobile() ? 70 : 50)
-  })
+      Math.cos(splashTime * Math.PI) * 10 + (isPlatformMobile() ? 70 : 50);
+  });
 
-  addDodo(floorHeight)
+  addDodo(floorHeight);
 
-  const menuOptions = ["Start", "Leaderboard", "Register", "Logout"]
-  let selectedOption = 0
+  const menuOptions = ["Start", "Leaderboard", "Register", "Logout"];
+  let selectedOption = 0;
 
   const screenMenuOptions: (GameObj<any> | null)[] = menuOptions
     .map((option, index) => {
-      const name = localStorage.getItem("name")
+      const name = localStorage.getItem("name");
 
       if (name) {
-        option = index === 2 ? "Change Player" : option
+        option = index === 2 ? "Change Player" : option;
       }
 
       if (!name) {
         if (index === 3) {
-          return null
+          return null;
         }
       }
 
@@ -74,86 +77,86 @@ function setScene(
         scale(1),
         z(10),
         opacity(selectedOption === index ? 1 : 0.5),
-      ])
+      ]);
 
       // return null
     })
-    .filter(Boolean)
+    .filter(Boolean);
 
   onKeyPress("up", () => {
-    selectedOption = Math.max(0, selectedOption - 1)
+    selectedOption = Math.max(0, selectedOption - 1);
 
     //change opacity of selected option
     screenMenuOptions.forEach((option, index) => {
-      if (!option) return
-      option.opacity = selectedOption === index ? 1 : 0.5
-    })
+      if (!option) return;
+      option.opacity = selectedOption === index ? 1 : 0.5;
+    });
 
     play("blip", {
       volume: 0.1,
-    })
-  })
+    });
+  });
 
   onKeyPress("down", () => {
-    selectedOption = Math.min(screenMenuOptions.length - 1, selectedOption + 1)
+    selectedOption = Math.min(screenMenuOptions.length - 1, selectedOption + 1);
 
     //change opacity of selected option
     screenMenuOptions.forEach((option, index) => {
-      if (!option) return
-      option.opacity = selectedOption === index ? 1 : 0.5
-    })
+      if (!option) return;
+      option.opacity = selectedOption === index ? 1 : 0.5;
+    });
 
     play("blip", {
       volume: 0.1,
-    })
-  })
+    });
+  });
 
   onKeyPress("left", () => {
     play("blip", {
       volume: 0.1,
-    })
-  })
+    });
+  });
 
   onKeyPress("right", () => {
     play("blip", {
       volume: 0.1,
-    })
-  })
+    });
+  });
 
   onKeyPress("b", () => {
     play("blip", {
       volume: 0.1,
-    })
-  })
+    });
+  });
 
   onKeyPress("a", () => {
     play("blip", {
       volume: 0.1,
-    })
-  })
+    });
+  });
 
   onKonamiCode(() => {
-    console.log("konami code activated")
-    eventEmitter.emit("shake-baby-shake")
-  })
+    console.log("konami code activated");
+    eventEmitter.emit("shake-baby-shake");
+  });
 
   // enter keypress handling
   onKeyPress("enter", () => {
-    handlingMenuOption(selectedOption)
-  })
+    handlingMenuOption(selectedOption);
+  });
 
   onKeyPress("space", () => {
-    handlingMenuOption(selectedOption)
-  })
+    handlingMenuOption(selectedOption);
+  });
 
   onTouchStart((pos, t) => {
     screenMenuOptions.forEach((option, index) => {
-      if (!option) return
+      if (!option) return;
       if (option.isHovering()) {
-        handlingMenuOption(index)
+        handlingMenuOption(index);
       }
-    })
-  })
+    });
+  });
 }
 
 function addHeaderText(version: string) {

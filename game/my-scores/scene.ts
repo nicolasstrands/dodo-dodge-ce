@@ -15,6 +15,7 @@ export default async function setMyScoresScene() {
 }
 
 function setScene() {
+  useTimeBasedBG();
   addTitle()
   addGoBackButton()
   onKeyPress("escape", () => {
