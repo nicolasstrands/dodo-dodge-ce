@@ -127,5 +127,4 @@ onMounted(async () => {
     transform: rotate(0deg);
   }
 }
-</style>import type canvasHeight from './utils/canvasHeight';
-
+</style>
