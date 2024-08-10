@@ -237,8 +237,8 @@ function addTrees(floorHeight: number) {
       area(),
       pos(i * treeSpacing, height() - floorHeight * 7), // Adjust position based on index
       z(3),
-      opacity(0.85),
-    ])
+      opacity(0.7),
+    ]);
   }
 }
 

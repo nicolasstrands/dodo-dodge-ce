@@ -1,35 +1,41 @@
 <script setup lang="ts">
-import { type KaboomCtx } from 'kaplay';
+import kaplay, { type KaboomCtx } from 'kaplay';
+import { konamiCodePlugin } from "./game/konami"
 
-const game = ref<KaboomCtx | null>(null);
 
 onMounted(async () => {
+  const game = ref<KaboomCtx>(kaplay({
+    debug: import.meta.dev ? true : false,
+      font: "sans-serif",
+      canvas: import.meta.client
+        ? (document.getElementById("game") as HTMLCanvasElement)
+        : undefined,
+      background: [86, 184, 250],
+      maxFPS: 25,
+      global: true,
+      width: canvasWidth(),
+      height: canvasHeight(),
+      pixelDensity: 2,
+      plugins: [konamiCodePlugin],
+  }));
+
+  loadAssets();
+
+  game.value.canvas = document.getElementById("game") as HTMLCanvasElement;
+  
   if (import.meta.dev) {
     const eruda = (await import('eruda')).default
     eruda.init()
   }
 
-  const canvasWidth = () => {
-  // if document clientWidth is greater than 800, return 800, else return document clientWidth
-  return document.documentElement.clientWidth > 800
-    ? 800
-    : document.documentElement.clientWidth
-}
-
-const canvasHeight = () => {
-  return document.documentElement.clientWidth > 800
-    ? 800
-    : document.documentElement.clientHeight
-}
-
-// check if the orientation is landscape
+  // check if the orientation is landscape
   if (screen.orientation.angle === 90 || screen.orientation.angle === -90) {
     (document.getElementById('anti-landscape-prompt') as HTMLElement).style.display = 'flex'
   } else {
     (document.getElementById('anti-landscape-prompt') as HTMLElement).style.display = 'none'
   }
 
-  game.value = useDodoGame(canvasWidth(), canvasHeight())
+  useDodoGame()
 
 
   // watch for orientation change
@@ -39,16 +45,18 @@ const canvasHeight = () => {
       (document.getElementById('anti-landscape-prompt') as HTMLElement).style.display = 'flex'
     } else {
       (document.getElementById('anti-landscape-prompt') as HTMLElement).style.display = 'none'
-      game.value = useDodoGame(canvasWidth(), canvasHeight())
+      useDodoGame()
     }
   })
 
-  // watch for resize
-  window.addEventListener('resize', () => {
+  const handleResize = debounce(() => {
     if (!isPlatformMobile()) {
-      game.value = useDodoGame(canvasWidth(), canvasHeight())
+      useDodoGame()
     }
-  })
+  }, 500)
+
+  // watch for resize
+  window.addEventListener('resize', handleResize)
 })
 
 </script>
@@ -119,4 +127,5 @@ const canvasHeight = () => {
     transform: rotate(0deg);
   }
 }
-</style>
+</style>import type canvasHeight from './utils/canvasHeight';
+
