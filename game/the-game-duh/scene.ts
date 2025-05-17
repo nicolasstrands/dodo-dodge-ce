@@ -160,6 +160,9 @@ function setScene(
     jump()
   })
 
+  // DEBUG BOUNDING BOXES (ACTIVATE FOR DEBUGGING)
+  debug.inspect = false;
+
   // increment score every frame
   onUpdate(() => {
     score += combo + 1
@@ -332,7 +335,7 @@ function spawnMountain(mountainWidth: () => number, mountainX: () => number) {
 }
 
 const spawnEnemy = () => {
-  const enemyHunterProps: any[] = []
+  const enemyHunterProps: any[] = [];
 
   if (insanityMode) {
     enemyHunterProps.push(
@@ -340,14 +343,14 @@ const spawnEnemy = () => {
         u_time: time() % 1,
         u_color: RED,
       }))
-    )
+    );
   }
 
   const enemyHunter = add([
     sprite("hunter"),
     pos(width(), height() - FLOOR_HEIGHT * 2 - 16),
     rotate(0),
-    area({ scale: vec2(0.7, 1), offset: vec2(25, 0) }),
+    area({ scale: vec2(0.65, 0.85), offset: vec2(25, 0) }),
     anchor("botleft"),
     body(),
     offscreen({ destroy: true, hide: false }),
@@ -356,30 +359,37 @@ const spawnEnemy = () => {
     scale(isPlatformMobile() ? 0.6 : 0.75),
     ...enemyHunterProps,
     "hunter",
-  ])
+  ]);
 
-  enemyHunter.flipX = false
+  enemyHunter.flipX = false;
 
-  enemyHunter.play("walk")
+  enemyHunter.play("walk");
 
   // Adjust spawn rate based on time, with a minimum delay to prevent too frequent spawns
-  const minSpawnDelay = 1 // Minimum spawn delay in seconds
-  const maxSpawnDelay = 7 // Maximum spawn delay at the start of the game
-  const timeFactor = 0.007 // Adjust this to control how quickly the spawn rate increases
+  const minSpawnDelay = 1; // Minimum spawn delay in seconds
+  const maxSpawnDelay = 7; // Maximum spawn delay at the start of the game
+  const timeFactor = 0.007; // Adjust this to control how quickly the spawn rate increases
   const spawnDelay = Math.max(
     minSpawnDelay,
     maxSpawnDelay - timeFactor * Math.floor(playTime)
-  )
+  );
+
+  // randomly make the hunter jump after a delay
+  wait(rand(1, 3), () => {
+    if (enemyHunter.exists()) {
+      enemyHunter.jump(JUMP_FORCE * 0.65);
+    }
+  });
 
   enemyHunter.onExitScreen(() => {
-    combo = 0
-    console.log("Combo reset")
-    console.log(combo)
-  })
+    combo = 0;
+    console.log("Combo reset");
+    console.log(combo);
+  });
 
   if (insanityMode) {
-    wait(1.5, spawnEnemy)
+    wait(1.5, spawnEnemy);
   } else {
-    wait(rand(1, spawnDelay), spawnEnemy)
+    wait(rand(1, spawnDelay), spawnEnemy);
   }
 }

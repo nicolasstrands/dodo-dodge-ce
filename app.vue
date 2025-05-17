@@ -2,15 +2,16 @@
 import kaplay, { type KaboomCtx } from 'kaplay';
 import { konamiCodePlugin } from "./game/konami"
 
+let game = ref<KaboomCtx | null>(null)
 
 onMounted(async () => {
-  const game = ref<KaboomCtx>(kaplay({
-    debug: import.meta.dev ? true : false,
+  game = ref<KaboomCtx>(kaplay({
+      debugKey: 'l',
       font: "sans-serif",
       canvas: import.meta.client
         ? (document.getElementById("game") as HTMLCanvasElement)
         : undefined,
-      background: [86, 184, 250],
+      background: [0, 0, 0, 0],
       maxFPS: 25,
       global: true,
       width: canvasWidth(),
@@ -21,7 +22,9 @@ onMounted(async () => {
 
   loadAssets();
 
-  game.value.canvas = document.getElementById("game") as HTMLCanvasElement;
+  if (game.value) {
+    game.value.canvas = document.getElementById("game") as HTMLCanvasElement;
+  }
   
   if (import.meta.dev) {
     const eruda = (await import('eruda')).default
@@ -57,6 +60,13 @@ onMounted(async () => {
 
   // watch for resize
   window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  if (game.value) {
+    game.value = null;
+    console.log("Game destroyed");
+  }
 })
 
 </script>
