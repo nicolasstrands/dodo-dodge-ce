@@ -17,7 +17,10 @@ function setScene() {
   useTimeBasedBG();
   addTitle()
   addGoBackButton()
-  onKeyPress("escape", () => {
+  // onKeyPress("escape", () => {
+  //   go("splash")
+  // })
+  onButtonPress("back", () => {
     go("splash")
   })
 }

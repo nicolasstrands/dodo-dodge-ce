@@ -1,15 +1,9 @@
 import type { Score } from "~/types"
 
 export const useHighScores = async (count: number = 15) => {
-  const { getData } = useIndexedDB()
+  const { getTopByIndex } = useIndexedDB()
 
-  let data = (await getData("highScores")) as Score[]
-
-  // sort by highscore
-  data = data.sort((a: Score, b: Score) => b.highscore - a.highscore)
-
-  // limit to count
-  data = data.slice(0, count)
+  const data = (await getTopByIndex("highScores", count)) as Score[]
 
   return { data }
 }

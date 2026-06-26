@@ -34,7 +34,9 @@ function setScene(
 
   addHeaderText(version);
 
-  const msccLogo = addMSCCLogo(floorHeight);
+  if (!import.meta.dev) {
+    const msccLogo = addMSCCLogo(floorHeight);
+  }
   const gameTitle = addGameTitleLogo();
   addGround(floorHeight);
   addTrees(floorHeight);
@@ -51,8 +53,13 @@ function setScene(
 
   const menuOptions = ["Start", "Leaderboard", "Register", "Logout"];
   let selectedOption = 0;
+  const compactMenuLayout = height() < 650;
+  const menuFontSize = compactMenuLayout ? 28 : 35;
+  const menuLineSpacing = compactMenuLayout ? 30 : 35;
+  const titleBottomY = gameTitle.pos.y + gameTitle.height;
+  const menuStartY = Math.max(height() / 2.6, titleBottomY + 40);
 
-  const screenMenuOptions: (GameObj<any> | null)[] = menuOptions
+  const screenMenuOptions = menuOptions
     .map((option, index) => {
       const name = localStorage.getItem("name");
 
@@ -69,9 +76,9 @@ function setScene(
       return add([
         text(option, {
           font: "arcade",
-          size: 35,
+          size: menuFontSize,
         }),
-        pos(width() / 2, height() / 2.6 + index * 35),
+        pos(width() / 2, menuStartY + index * menuLineSpacing),
         anchor("center"),
         area(),
         scale(1),
@@ -212,7 +219,7 @@ function addGround(floorHeight: number) {
     sprite("ground", {
       tiled: true,
       width: width() * 1.5,
-      height: floorHeight,
+      height: floorHeight * 3,
       frame: 0,
       anim: "idle",
     }),

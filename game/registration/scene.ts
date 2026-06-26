@@ -10,18 +10,17 @@ export default async function setRegistrationScene() {
   scene(REGISTRATION_SCENE, () => setScene())
 }
 
-let nameInputObj: null | GameObj
-let counterObj: null | GameObj
-let nameLabelObj: null | GameObj
-let nameUnderlineObj: null | GameObj
-let nameErrorMessageObj: null | GameObj<TextComp | any>
-
-let submitButtonObj: null | GameObj
-let submitButtonBgObj: null | GameObj
+let nameInputObj: any
+let counterObj: any;
+let nameLabelObj: any;
+let nameUnderlineObj: any;
+let nameErrorMessageObj: any
+let submitButtonObj: any
+let submitButtonBgObj: any
 
 let activeItem: "name" | "submit" = "name"
 
-const bgColor = [0.5, 0.5, 1]
+const bgColor: [number, number, number] = [0.5, 0.5, 1]
 
 function setScene() {
   addTitle()
@@ -91,7 +90,7 @@ function setScene() {
     }
 
     for (const obj of inputObject) {
-      obj.onTouchStart((pos, t) => {
+      obj.onTouchStart((pos: any, t: any) => {
         console.log("Touch start", itemName)
         if (obj.isHovering()) {
           console.log("Touched", itemName)
@@ -116,12 +115,12 @@ function setScene() {
     return activeIndex === 0 ? maxIndex : activeIndex - 1
   }
 
-  function getPreviousItem() {
-    return options[getPreviousIndex()]
+  function getPreviousItem(): "name" | "submit" {
+    return options[getPreviousIndex()] ?? activeItem
   }
 
-  function getNextItem() {
-    return options[getNextIndex()]
+  function getNextItem(): "name" | "submit" {
+    return options[getNextIndex()] ?? activeItem
   }
 
   onKeyPress("up", () => {
@@ -330,7 +329,7 @@ function addNameInput() {
   return { name, counter, label, underline, errorMessage }
 }
 
-function addSumbitButton(offset: number, name: GameObj) {
+function addSumbitButton(offset: number, name: any) {
   const submitButtonBg = add([
     rect(200, 24 * 1.5),
     pos(width() / 2, height() / 2 + 64 + offset),

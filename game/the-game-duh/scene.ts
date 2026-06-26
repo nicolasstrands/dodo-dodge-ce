@@ -1,18 +1,36 @@
 import type { AudioPlay, GameObj } from "kaplay"
 
 const eventEmitter = useEventEmitter()
+const isDev = import.meta.dev
+const debugLog = (...args: unknown[]) => {
+  if (!isDev) {
+    return
+  }
+  console.log(...args)
+}
 
 let sessionId = ""
+let areSceneEventBindingsInitialized = false
 
-// @ts-ignore
-eventEmitter.on("session-created", (session_id: string) => {
-  console.log("Session created:", session_id)
+const onSessionCreated = (session_id: string) => {
+  debugLog("Session created:", session_id)
   sessionId = session_id
-})
+}
 
-eventEmitter.on("reset-game", () => {
+const onResetGame = () => {
   resetGame()
-})
+}
+
+const bindSceneEventListeners = () => {
+  if (areSceneEventBindingsInitialized) {
+    return
+  }
+
+  eventEmitter.on("session-created", onSessionCreated as any)
+  eventEmitter.on("reset-game", onResetGame)
+
+  areSceneEventBindingsInitialized = true
+}
 
 const GAME_SCENE = "game"
 
@@ -23,6 +41,24 @@ let insanityMode = false
 let insanityModeTimer = 15
 
 let playTime = 0
+let activeGameSceneRunId = 0
+
+const ENEMY_MIN_SPAWN_DELAY = 1
+const ENEMY_MAX_SPAWN_DELAY = 7
+const ENEMY_SPAWN_TIME_FACTOR = 0.007
+
+const startGameSceneRun = () => {
+  activeGameSceneRunId += 1
+  return activeGameSceneRunId
+}
+
+const stopGameSceneRun = (runId: number) => {
+  if (activeGameSceneRunId === runId) {
+    activeGameSceneRunId += 1
+  }
+}
+
+const isGameSceneRunActive = (runId: number) => activeGameSceneRunId === runId
 
 export default function setGameScene(
   mainMenuMusic: AudioPlay,
@@ -34,6 +70,8 @@ export default function setGameScene(
   mountainWidth: () => number,
   mountainX: () => number
 ) {
+  bindSceneEventListeners()
+
   scene(GAME_SCENE, () =>
     setScene(
       mainMenuMusic,
@@ -63,6 +101,7 @@ function setScene(
   mountainX: () => number
 ) {
   FLOOR_HEIGHT = floorHeight
+  const sceneRunId = startGameSceneRun()
 
   eventEmitter.emit("gamestart", {
     score: 0,
@@ -106,10 +145,11 @@ function setScene(
     combo,
     insanityMode
   )
+  const enemyScale = isPlatformMobile() ? 0.6 : 0.75
 
-  spawnCloud()
-  spawnTree()
-  spawnEnemy()
+  spawnCloud(sceneRunId)
+  spawnTree(sceneRunId)
+  spawnEnemy(sceneRunId, enemyScale)
   spawnGround()
 
   spawnMountain(mountainWidth, mountainX)
@@ -123,6 +163,7 @@ function setScene(
         shake(SHAKE_FACTOR)
         play("crow")
 
+        stopGameSceneRun(sceneRunId)
         go("gameover")
         eventEmitter.emit("gameover", {
           playername: localStorage.getItem("name"),
@@ -154,7 +195,8 @@ function setScene(
     player.play("walk")
   })
 
-  onKeyPress("space", jump)
+  // onKeyPress("space", jump)
+  onButtonPress("jump", jump)
 
   onTouchStart((pos, t) => {
     jump()
@@ -163,23 +205,27 @@ function setScene(
   // DEBUG BOUNDING BOXES (ACTIVATE FOR DEBUGGING)
   debug.inspect = false;
 
+  const HUD_UPDATE_INTERVAL = 0.1
+  let hudUpdateAccumulator = 0
+  let lastDisplayedScore = -1
+  let lastDisplayedSecond = -1
+  let lastDisplayedComboText = ""
+
   // increment score every frame
   onUpdate(() => {
+    const delta = dt()
+
     score += combo + 1
 
-    playTime += dt()
-    scoreLabel.text = `Score: ${Math.floor(score)} / Time: ${Math.floor(
-      playTime
-    )}`
-
-    comboLabel.text = `Combo: ${insanityMode ? "MAX" : "x" + (combo + 1)}`
+    playTime += delta
+    const wholeSeconds = Math.floor(playTime)
 
     if (combo >= 19 && !insanityMode) {
       insanityMode = true
     }
 
     if (insanityMode) {
-      insanityModeTimer -= dt()
+      insanityModeTimer -= delta
       if (insanityModeTimer <= 0) {
         insanityMode = false
         insanityModeTimer = 15
@@ -187,14 +233,35 @@ function setScene(
       }
     }
 
+    hudUpdateAccumulator += delta
+    if (hudUpdateAccumulator >= HUD_UPDATE_INTERVAL) {
+      hudUpdateAccumulator = 0
+
+      const wholeScore = Math.floor(score)
+      if (
+        wholeScore !== lastDisplayedScore ||
+        wholeSeconds !== lastDisplayedSecond
+      ) {
+        scoreLabel.text = `Score: ${wholeScore} / Time: ${wholeSeconds}`
+        lastDisplayedScore = wholeScore
+        lastDisplayedSecond = wholeSeconds
+      }
+
+      const comboText = `Combo: ${insanityMode ? "MAX" : "x" + (combo + 1)}`
+      if (comboText !== lastDisplayedComboText) {
+        comboLabel.text = comboText
+        lastDisplayedComboText = comboText
+      }
+    }
+
     // event emit minuteover after every minute once for one frame
-    if (Math.floor(playTime) % 60 === 0 && Math.floor(playTime) !== 0) {
-      const currentMinute = Math.floor(playTime / 60)
+    if (wholeSeconds !== 0 && wholeSeconds % 60 === 0) {
+      const currentMinute = Math.floor(wholeSeconds / 60)
       // Check if the current minute is different from the last emitted minute
       if (currentMinute !== lastEmittedMinute) {
         eventEmitter.emit("minuteover", {
           score: score,
-          time: Math.floor(playTime),
+          time: wholeSeconds,
           session_id: sessionId,
           session_event_type: "LOG",
         })
@@ -273,7 +340,7 @@ const spawnGround = () => {
     sprite("ground", {
       tiled: true,
       width: width() * 1.5,
-      height: FLOOR_HEIGHT,
+      height: FLOOR_HEIGHT * 3,
       frame: 0,
       anim: "move",
     }),
@@ -286,7 +353,11 @@ const spawnGround = () => {
   ])
 }
 
-const spawnCloud = () => {
+const spawnCloud = (runId: number) => {
+  if (!isGameSceneRunActive(runId)) {
+    return
+  }
+
   const cloud = add([
     sprite("clouds"),
     pos(width() + 100, rand(0, height() / 2)),
@@ -303,11 +374,17 @@ const spawnCloud = () => {
     cloud.flipX = true
   }
 
-  wait(rand(1, 7), spawnCloud)
+  wait(rand(1, 7), () => {
+    spawnCloud(runId)
+  })
 }
 
-const spawnTree = () => {
-  const tree = add([
+const spawnTree = (runId: number) => {
+  if (!isGameSceneRunActive(runId)) {
+    return
+  }
+
+  add([
     sprite("trees", {
       frame: 1,
     }),
@@ -319,7 +396,9 @@ const spawnTree = () => {
     opacity(1),
   ])
 
-  wait(7, spawnTree)
+  wait(7, () => {
+    spawnTree(runId)
+  })
 }
 
 function spawnMountain(mountainWidth: () => number, mountainX: () => number) {
@@ -334,62 +413,71 @@ function spawnMountain(mountainWidth: () => number, mountainX: () => number) {
   ])
 }
 
-const spawnEnemy = () => {
-  const enemyHunterProps: any[] = [];
-
-  if (insanityMode) {
-    enemyHunterProps.push(
-      shader("saturate", () => ({
-        u_time: time() % 1,
-        u_color: RED,
-      }))
-    );
+const spawnEnemy = (runId: number, enemyScale: number) => {
+  if (!isGameSceneRunActive(runId)) {
+    return
   }
 
-  const enemyHunter = add([
-    sprite("hunter"),
-    pos(width(), height() - FLOOR_HEIGHT * 2 - 16),
-    rotate(0),
-    area({ scale: vec2(0.65, 0.85), offset: vec2(25, 0) }),
-    anchor("botleft"),
-    body(),
-    offscreen({ destroy: true, hide: false }),
-    move(LEFT, 240), // Keep speed constant
-    z(10),
-    scale(isPlatformMobile() ? 0.6 : 0.75),
-    ...enemyHunterProps,
-    "hunter",
-  ]);
+  const enemyHunter = insanityMode
+    ? add([
+        sprite("hunter"),
+        pos(width(), height() - FLOOR_HEIGHT * 2 - 16),
+        rotate(0),
+        area({ scale: vec2(0.65, 0.85), offset: vec2(25, 0) }),
+        anchor("botleft"),
+        body(),
+        offscreen({ destroy: true, hide: false }),
+        move(LEFT, 240), // Keep speed constant
+        z(10),
+        scale(enemyScale),
+        shader("saturate", () => ({
+          u_time: time() % 1,
+          u_color: RED,
+        })),
+        "hunter",
+      ])
+    : add([
+        sprite("hunter"),
+        pos(width(), height() - FLOOR_HEIGHT * 2 - 16),
+        rotate(0),
+        area({ scale: vec2(0.65, 0.85), offset: vec2(25, 0) }),
+        anchor("botleft"),
+        body(),
+        offscreen({ destroy: true, hide: false }),
+        move(LEFT, 240), // Keep speed constant
+        z(10),
+        scale(enemyScale),
+        "hunter",
+      ])
 
   enemyHunter.flipX = false;
 
   enemyHunter.play("walk");
 
   // Adjust spawn rate based on time, with a minimum delay to prevent too frequent spawns
-  const minSpawnDelay = 1; // Minimum spawn delay in seconds
-  const maxSpawnDelay = 7; // Maximum spawn delay at the start of the game
-  const timeFactor = 0.007; // Adjust this to control how quickly the spawn rate increases
   const spawnDelay = Math.max(
-    minSpawnDelay,
-    maxSpawnDelay - timeFactor * Math.floor(playTime)
+    ENEMY_MIN_SPAWN_DELAY,
+    ENEMY_MAX_SPAWN_DELAY - ENEMY_SPAWN_TIME_FACTOR * Math.floor(playTime)
   );
 
   // randomly make the hunter jump after a delay
   wait(rand(1, 3), () => {
-    if (enemyHunter.exists()) {
+    if (isGameSceneRunActive(runId) && enemyHunter.exists()) {
       enemyHunter.jump(JUMP_FORCE * 0.65);
     }
   });
 
   enemyHunter.onExitScreen(() => {
-    combo = 0;
-    console.log("Combo reset");
-    console.log(combo);
+    combo = 0
   });
 
   if (insanityMode) {
-    wait(1.5, spawnEnemy);
+    wait(1.5, () => {
+      spawnEnemy(runId, enemyScale)
+    });
   } else {
-    wait(rand(1, spawnDelay), spawnEnemy);
+    wait(rand(1, spawnDelay), () => {
+      spawnEnemy(runId, enemyScale)
+    });
   }
 }

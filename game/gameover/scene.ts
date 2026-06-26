@@ -31,10 +31,15 @@ function setScene(mainMenuMusic: AudioPlay, gameMusic: AudioPlay) {
   addTitle()
   addGoBackButton()
   addFinalScore(score)
-  onKeyPress("escape", () => {
-    go("splash")
-    eventEmitter.emit("reset-game")
-  })
+  // onKeyPress("escape", () => {
+  //   go("splash")
+  //   eventEmitter.emit("reset-game")
+  // })
+
+  onButtonPress("back", () => {
+    go("splash");
+    eventEmitter.emit("reset-game");
+  });
 
   onUpdate(() => {
     gameOverTime += dt()
@@ -74,7 +79,7 @@ function addFinalScore(score: number) {
   add([
     text(`Thanks for playing! Your score: ${Math.floor(score)}`, {
       font: "arcade",
-      width: width() / 2,
+      width: width() / 2.5,
       align: "center",
       transform: (idx: number, ch: string) => ({
         // make the text blink by changing opacity over time

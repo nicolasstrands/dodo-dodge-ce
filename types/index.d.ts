@@ -1,6 +1,6 @@
 // ~/types/index.d.ts
 
-import type { KaboomCtx } from "kaplay"
+import type { KAPLAYCtx } from "kaplay"
 import "kaplay/global";
 
 declare module "*.png" {
@@ -9,5 +9,5 @@ declare module "*.png" {
 }
 
 declare global {
-  const onKonamiCode: KaboomCtx["onKonamiCode"]
+  const onKonamiCode: KAPLAYCtx["onKonamiCode"]
 }

@@ -3,7 +3,7 @@ export default function () {
     return 800;
   }
 
-  return document.documentElement.clientWidth > 800
+  return document.documentElement.clientWidth > 1024
     ? 800
     : document.documentElement.clientHeight;
 }

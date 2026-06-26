@@ -12,6 +12,7 @@ import setRegistrationScene from "~/game/registration/scene";
 import setMainMenuScene from "../game/main-menu/scene";
 import setGameScene from "../game/the-game-duh/scene";
 import setGameOverScene from "../game/gameover/scene";
+import setIntroScene from "../game/intro/scene";
 
 const storedName =
   (import.meta.client &&
@@ -21,152 +22,152 @@ const storedName =
 let sessionId = "";
 
 const eventEmitter = useEventEmitter();
+const isDev = import.meta.dev;
+const debugLog = (...args: unknown[]) => {
+  if (!isDev) {
+    return;
+  }
+  console.log(...args);
+};
 
-// @ts-ignore
-eventEmitter.on(
-  "gamestart",
-  async ({
-    score,
+let areEventBindingsInitialized = false;
+
+const onGameStart = async ({
+  score,
+  time,
+  session_id,
+  session_event_type,
+}: {
+  score: number;
+  time: number;
+  session_id: string;
+  session_event_type: string;
+}) => {
+  debugLog("gamestart");
+  const response = await useAddSessionLog({
+    score: Math.floor(score),
+    playername: storedName.value as string,
     time,
-    session_id,
     session_event_type,
-  }: {
-    score: number;
-    time: number;
-    session_id: string;
-    session_event_type: string;
-  }) => {
-    console.log("gamestart");
-    const response = await useAddSessionLog({
-      score: Math.floor(score),
+    session_id,
+  });
+
+  debugLog("response", response);
+
+  if (response.session_id) {
+    sessionId = response.session_id;
+    eventEmitter.emit("session-created", response.session_id);
+  }
+};
+
+const onMinuteOver = async ({
+  score,
+  time,
+  session_id,
+  session_event_type,
+}: {
+  score: number;
+  time: number;
+  session_id: string;
+  session_event_type: string;
+}) => {
+  debugLog("minuteover");
+
+  const response = await useAddSessionLog({
+    score: Math.floor(score),
+    playername: storedName.value as string,
+    time,
+    session_event_type,
+    session_id,
+  });
+
+  debugLog("response", response);
+};
+
+const onGameOver = async ({
+  gameScore,
+  time,
+  startTime,
+  session_event_type,
+  session_id,
+}: {
+  gameScore: number;
+  time: number;
+  startTime: Date;
+  session_event_type: string;
+  session_id: string;
+}) => {
+  debugLog(gameScore, time, startTime, session_event_type, session_id);
+
+  score = gameScore;
+  const logResponse = await useAddSessionLog({
+    score: Math.floor(score),
+    playername: storedName.value as string,
+    time,
+    session_event_type,
+    session_id,
+  });
+
+  debugLog("response", logResponse);
+
+  if (logResponse.data === "ok") {
+    const response = await useAddNewHighScore({
+      highscore: Math.floor(score),
       playername: storedName.value as string,
       time,
-      session_event_type,
+      startTime,
       session_id,
     });
 
-    console.log("response", response);
+    debugLog("response", response);
 
-    if (response.session_id) {
-      sessionId = response.session_id;
-      eventEmitter.emit("session-created", response.session_id);
-    }
+    // reinit session id
+    sessionId = "";
   }
-);
+};
 
-// @ts-ignore
-eventEmitter.on(
-  "minuteover",
-  async ({
-    score,
-    time,
-    session_id,
-    session_event_type,
-  }: {
-    score: number;
-    time: number;
-    session_id: string;
-    session_event_type: string;
-  }) => {
-    console.log("minuteover");
-
-    const response = await useAddSessionLog({
-      score: Math.floor(score),
-      playername: storedName.value as string,
-      time,
-      session_event_type,
-      session_id,
-    });
-
-    console.log("response", response);
-  }
-);
-
-// @ts-ignore
-eventEmitter.on(
-  "gameover",
-  async ({
-    gameScore,
-    time,
-    startTime,
-    session_event_type,
-    session_id,
-  }: {
-    gameScore: number;
-    time: number;
-    startTime: Date;
-    session_event_type: string;
-    session_id: string;
-  }) => {
-    console.log(gameScore, time, startTime, session_event_type, session_id);
-
-    score = gameScore;
-    const logResponse = await useAddSessionLog({
-      score: Math.floor(score),
-      playername: storedName.value as string,
-      time,
-      session_event_type,
-      session_id,
-    });
-
-    console.log("response", logResponse);
-
-    if (logResponse.data === "ok") {
-      const response = await useAddNewHighScore({
-        highscore: Math.floor(score),
-        playername: storedName.value as string,
-        time,
-        startTime,
-        session_id,
-      });
-
-      console.log("response", response);
-
-      // reinit session id
-      sessionId = "";
-    }
-  }
-);
-
-eventEmitter.on("reload-highscores", async () => {
-  console.log("reloading highscores...");
+const onReloadHighscores = async () => {
+  debugLog("reloading highscores...");
   const scores = await useFetchHighScoresAndUpdateStore();
   eventEmitter.emit("highscores-updated", scores);
-  console.log("highscores-updated");
-});
+  debugLog("highscores-updated");
+};
 
-eventEmitter.on(RELOAD_MY_SCORES, async () => {
-  console.log("reloading my scores...");
+const onReloadMyScores = async () => {
+  debugLog("reloading my scores...");
   const { data: scores, error } = await useFetchMyScoresAndUpdateStore();
   if (error) {
-    console.error(error);
+    if (isDev) {
+      console.error(error);
+    }
     return;
   }
   eventEmitter.emit(MY_SCORES_UPDATED, scores);
-  console.log(MY_SCORES_UPDATED);
-});
+  debugLog(MY_SCORES_UPDATED);
+};
 
-eventEmitter.on("shake-baby-shake", () => {
+const onShakeBabyShake = () => {
   pixelShake();
   profanityMod = !profanityMod;
-});
+};
 
-// @ts-ignore
-eventEmitter.on(REGISTRATION_SUBMITTED, async ({ name }: { name: string }) => {
-  console.log("registration submitted", name);
+const onRegistrationSubmitted = async ({ name }: { name: string }) => {
+  debugLog("registration submitted", name);
   storedName.value = name;
   localStorage.setItem("name", name);
   go("splash");
-});
+};
 
-// @ts-ignore
-eventEmitter.on(
-  "hunter-wrekked",
-  ({ position, insanityMode }: { position: Vec2; insanityMode: boolean }) => {
-    playRandomHunterOof();
-    addAyo(position, insanityMode ? RED : WHITE);
-  }
-);
+const onHunterWrekked = ({
+  position,
+  insanityMode,
+}: {
+  position: Vec2;
+  insanityMode: boolean;
+}) => {
+  playRandomHunterOof();
+  addAyo(position, insanityMode ? RED : WHITE);
+};
 
 let score = 0;
 
@@ -182,9 +183,27 @@ const mountainX = () => {
   return document.documentElement.clientWidth > 800 ? 0 : -width() / 2;
 };
 
-eventEmitter.on("reset-game", () => {
+const onResetGame = () => {
   resetGame();
-});
+};
+
+const bindEventEmitterListeners = () => {
+  if (areEventBindingsInitialized) {
+    return;
+  }
+
+  eventEmitter.on("gamestart", onGameStart as any);
+  eventEmitter.on("minuteover", onMinuteOver as any);
+  eventEmitter.on("gameover", onGameOver as any);
+  eventEmitter.on("reload-highscores", onReloadHighscores);
+  eventEmitter.on(RELOAD_MY_SCORES, onReloadMyScores);
+  eventEmitter.on("shake-baby-shake", onShakeBabyShake);
+  eventEmitter.on(REGISTRATION_SUBMITTED, onRegistrationSubmitted as any);
+  eventEmitter.on("hunter-wrekked", onHunterWrekked as any);
+  eventEmitter.on("reset-game", onResetGame);
+
+  areEventBindingsInitialized = true;
+};
 
 function resetGame() {
   score = 0;
@@ -227,6 +246,7 @@ function addAyo(position: Vec2, color = WHITE) {
   if (profanityMod) {
     randomWords = [
       "TA GGT!",
+      "KI GGT!",
       "FLSM!",
       "LKSRM!",
       "FALCO!",
@@ -246,7 +266,7 @@ function addAyo(position: Vec2, color = WHITE) {
       randomWords[Math.floor(Math.random() * randomWords.length)],
       textOptions
     ),
-    pos(position),
+    pos(position.x, position.y),
     scale(0.5),
     z(100),
     move(UP, 100),
@@ -257,6 +277,8 @@ function addAyo(position: Vec2, color = WHITE) {
 }
 
 export default function () {
+  bindEventEmitterListeners();
+
   const config = useRuntimeConfig();
 
   const version = config.public.version;
@@ -279,6 +301,8 @@ export default function () {
   onKeyPress("n", () => (mainMenuMusic.paused = !mainMenuMusic.paused));
 
   /* Scenes */
+  setIntroScene(FLOOR_HEIGHT);
+
   setLeaderboardScene();
 
   setRegistrationScene();
@@ -301,5 +325,5 @@ export default function () {
   setGameOverScene(mainMenuMusic, gameMusic);
 
   /* Init game with splash screen */
-  go("splash");
+  go("intro");
 }

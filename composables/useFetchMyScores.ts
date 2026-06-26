@@ -1,15 +1,16 @@
 import type { Score } from "~/types"
+import { selectTopScores } from "~/utils/topScores"
 
 export const useFetchMyScores = async (count: number = 15, email: string) => {
-  const { getData } = useIndexedDB()
+  const { getDataByProperty } = useIndexedDB()
 
-  let data = (await getData("highScores")) as Score[]
+  const storedScores = (await getDataByProperty(
+    "highScores",
+    "playeremail",
+    email
+  )) as Score[] | undefined
 
-  // sort by highscore
-  data = data.sort((a: Score, b: Score) => b.highscore - a.highscore)
-
-  // limit to count
-  data = data.slice(0, count)
+  const data = selectTopScores(storedScores ?? [], count)
 
   return { data }
 }

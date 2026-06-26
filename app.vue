@@ -1,12 +1,35 @@
 <script setup lang="ts">
-import kaplay, { type KaboomCtx } from 'kaplay';
+import kaplay, { type KAPLAYCtx } from 'kaplay';
 import { konamiCodePlugin } from "./game/konami"
 
-let game = ref<KaboomCtx | null>(null)
+let game = ref<KAPLAYCtx | null>(null)
+let handleOrientationChange: (() => void) | null = null
+let handleResize: (() => void) | null = null
 
-onMounted(async () => {
-  game = ref<KaboomCtx>(kaplay({
-      debugKey: 'l',
+const updateOrientationPrompt = () => {
+  const prompt = document.getElementById('anti-landscape-prompt') as HTMLElement | null
+  if (!prompt) {
+    return
+  }
+
+  if (screen.orientation.angle === 90 || screen.orientation.angle === -90) {
+    prompt.style.display = 'flex'
+  } else {
+    prompt.style.display = 'none'
+  }
+}
+
+// Function to create or reconfigure the game
+const setupGame = () => {
+  // Clean up existing game instance if it exists
+  if (game.value) {
+    game.value = null;
+    console.log("Game instance destroyed for reconfiguration");
+  }
+  
+  // Create new game instance with updated dimensions
+  game.value = kaplay({
+      debugKey: 'f1',
       font: "sans-serif",
       canvas: import.meta.client
         ? (document.getElementById("game") as HTMLCanvasElement)
@@ -18,43 +41,51 @@ onMounted(async () => {
       height: canvasHeight(),
       pixelDensity: 2,
       plugins: [konamiCodePlugin],
-  }));
-
-  loadAssets();
-
-  if (game.value) {
+      buttons: {
+        jump: {
+          keyboard: ['space', 'up', 'w'],
+        },
+        back: {
+          keyboard: ['backspace', 'escape'],
+        }
+      }
+  });
+  
+  // Make sure to reset the canvas reference
+  if (game.value && import.meta.client) {
     game.value.canvas = document.getElementById("game") as HTMLCanvasElement;
   }
   
+  return game.value;
+}
+
+onMounted(async () => {
+  setupGame();  loadAssets();
+
   if (import.meta.dev) {
-    const eruda = (await import('eruda')).default
-    eruda.init()
+    // const eruda = (await import('eruda')).default
+    // eruda.init()
   }
 
-  // check if the orientation is landscape
-  if (screen.orientation.angle === 90 || screen.orientation.angle === -90) {
-    (document.getElementById('anti-landscape-prompt') as HTMLElement).style.display = 'flex'
-  } else {
-    (document.getElementById('anti-landscape-prompt') as HTMLElement).style.display = 'none'
-  }
+  updateOrientationPrompt()
 
   useDodoGame()
 
-
   // watch for orientation change
-  window.addEventListener('orientationchange', () => {
-    // check if the orientation is landscape
-    if (screen.orientation.angle === 90 || screen.orientation.angle === -90) {
-      (document.getElementById('anti-landscape-prompt') as HTMLElement).style.display = 'flex'
-    } else {
-      (document.getElementById('anti-landscape-prompt') as HTMLElement).style.display = 'none'
-      useDodoGame()
+  handleOrientationChange = () => {
+    updateOrientationPrompt()
+    if (screen.orientation.angle !== 90 && screen.orientation.angle !== -90) {
+      setupGame();
+      useDodoGame();
     }
-  })
+  }
+  window.addEventListener('orientationchange', handleOrientationChange)
 
-  const handleResize = debounce(() => {
-    if (!isPlatformMobile()) {
-      useDodoGame()
+  handleResize = debounce(() => {
+    // Always reinitialize for screens <= 1024px to adapt to full viewport
+    if (!isPlatformMobile() || window.innerWidth <= 1024) {
+      setupGame();
+      useDodoGame();
     }
   }, 500)
 
@@ -63,6 +94,16 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  if (handleOrientationChange) {
+    window.removeEventListener('orientationchange', handleOrientationChange)
+    handleOrientationChange = null
+  }
+
+  if (handleResize) {
+    window.removeEventListener('resize', handleResize)
+    handleResize = null
+  }
+
   if (game.value) {
     game.value = null;
     console.log("Game destroyed");

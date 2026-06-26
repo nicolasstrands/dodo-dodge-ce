@@ -1,10 +1,10 @@
-import type { KaboomCtx } from "kaplay"
+import type { KAPLAYCtx } from "kaplay";
 
 /**
  * Plugin to detect Konami Code in kaboom.js games
  * UP UP DOWN DOWN LEFT RIGHT LEFT RIGHT B A
  */
-export function konamiCodePlugin(k: KaboomCtx) {
+export function konamiCodePlugin(k: KAPLAYCtx) {
   const konamiCode = [
     "up",
     "up",

@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
+  compatibilityDate: '2025-05-17',
   css: ["~/assets/css/main.css"],
 
   app: {
@@ -19,6 +20,15 @@ export default defineNuxtConfig({
   },
 
   vite: {
+    optimizeDeps: {
+      include: [
+        "@vercel/analytics",
+        "@vueuse/core",
+        "kaplay",
+        "mitt",
+        "valibot",
+      ],
+    },
     build: {
       minify: "terser",
     },
@@ -26,7 +36,7 @@ export default defineNuxtConfig({
 
   postcss: {
     plugins: {
-      tailwindcss: {},
+      "@tailwindcss/postcss": {},
       autoprefixer: {},
     },
   },
