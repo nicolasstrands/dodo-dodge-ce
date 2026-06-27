@@ -142,6 +142,7 @@ onUnmounted(() => {
           @click="startGame"
         >
           <img src="/dodo-dodge-artwork.jpg" alt="Dodo Dodge splash artwork" />
+          <span class="splash-cta">Start Game</span>
         </button>
         <canvas id="game"></canvas>
         <div id="anti-landscape-prompt" class="space-y-3">
@@ -163,7 +164,7 @@ onUnmounted(() => {
   border: 0;
   padding: 0;
   margin: 0;
-  background: #000;
+  background: #0f172a;
   cursor: pointer;
 
   img {
@@ -172,6 +173,44 @@ onUnmounted(() => {
     object-fit: contain;
     object-position: center;
     display: block;
+  }
+
+  .splash-cta {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(16px, 6vh, 56px);
+    transform: translateX(-50%);
+    font-family: "ArcadeClassic", sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1;
+    font-kerning: none;
+    font-feature-settings: "kern" 0;
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: none;
+    text-shadow: 0 1px 0 rgba(15, 23, 42, 0.55);
+    text-transform: uppercase;
+    color: #f8fafc;
+    background: linear-gradient(90deg, rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.3));
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.55);
+    animation: pulse-start 1.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @media (max-width: 900px) {
+    .splash-cta {
+      font-size: 20px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .splash-cta {
+      font-size: 16px;
+      padding: 9px 14px;
+    }
   }
 }
 
@@ -224,6 +263,21 @@ onUnmounted(() => {
   }
   100% {
     transform: rotate(0deg);
+  }
+}
+
+@keyframes pulse-start {
+  0% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.04);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.9;
   }
 }
 </style>

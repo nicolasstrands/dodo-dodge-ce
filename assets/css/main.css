@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @config "../../tailwind.config.js";
 
+@font-face {
+  font-family: "ArcadeClassic";
+  src: url("/fonts/arcadeclassic.ttf") format("truetype");
+  font-display: swap;
+}
+
 body {
   overflow: hidden;
 }
