@@ -231,6 +231,15 @@ onUnmounted(() => {
   background: #0f172a;
   cursor: pointer;
 
+  @media (min-width: 1025px) {
+    inset: auto;
+    top: 50%;
+    left: 50%;
+    width: min(100%, 800px);
+    height: min(100%, 800px);
+    transform: translate(-50%, -50%);
+  }
+
   img {
     width: 100%;
     height: 100%;
