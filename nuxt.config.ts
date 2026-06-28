@@ -69,7 +69,7 @@ export default defineNuxtConfig({
   site: {
     url: "https://dodg.app",
     name: "Dodo Dodge",
-    description: "Play Dodo Dodge, a free online runner game where you play as a dodo bird. Dodge hunters or stomp on them!",
+    description: "Play Dodo Dodge, a Mauritius-made runner game where you play as a dodo bird. Dodge hunters or stomp on them!",
     defaultLocale: "en",
     trailingSlash: false,
   },

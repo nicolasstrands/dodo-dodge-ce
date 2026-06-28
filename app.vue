@@ -4,15 +4,15 @@ import { konamiCodePlugin } from "./game/core/konami"
 
 // Setup SEO with @nuxtjs/seo
 useSeoMeta({
-  title: "Dodo Dodge - Free Online Runner Game",
-  description: "Play Dodo Dodge, a free online runner game where you play as a dodo bird. Dodge hunters or stomp on them in this exciting Super Mario Bros-style game.",
+  title: "Dodo Dodge - Mauritius-made Runner Game",
+  description: "Play Dodo Dodge, a Mauritius-made runner game where you play as a dodo bird. Dodge hunters or stomp on them in this exciting Super Mario Bros-style game.",
   ogType: "website",
   ogImage: "/og-image.png",
-  ogTitle: "Dodo Dodge - Free Online Runner Game",
-  ogDescription: "Play Dodo Dodge, a free online runner game where you play as a dodo bird. Dodge hunters or stomp on them!",
+  ogTitle: "Dodo Dodge - Mauritius-made Runner Game",
+  ogDescription: "Play Dodo Dodge, a Mauritius-made runner game where you play as a dodo bird. Dodge hunters or stomp on them!",
   twitterCard: "summary_large_image",
-  twitterTitle: "Dodo Dodge - Free Online Runner Game",
-  twitterDescription: "Play Dodo Dodge, a free online runner game where you play as a dodo bird. Dodge hunters or stomp on them!",
+  twitterTitle: "Dodo Dodge - Mauritius-made Runner Game",
+  twitterDescription: "Play Dodo Dodge, a Mauritius-made runner game where you play as a dodo bird. Dodge hunters or stomp on them!",
   twitterImage: "/og-image.png",
   themeColor: "#ff6b6b",
 })
@@ -22,7 +22,7 @@ useSchemaOrg([
   {
     "@type": "WebGame",
     "name": "Dodo Dodge",
-    "description": "A free online runner game where you play as a dodo bird and either dodge hunters or stomp on them.",
+    "description": "A Mauritius-made runner game where you play as a dodo bird and either dodge hunters or stomp on them.",
     "genre": "Adventure",
     "applicationCategory": "Game",
     "url": "https://dodg.app",
