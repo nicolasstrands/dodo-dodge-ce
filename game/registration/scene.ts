@@ -17,6 +17,7 @@ let nameUnderlineObj: any;
 let nameErrorMessageObj: any
 let submitButtonObj: any
 let submitButtonBgObj: any
+let isOpeningMobileInput = false
 
 let activeItem: "name" | "submit" = "name"
 
@@ -503,11 +504,98 @@ function handleMobileInput(item: "name" | "email" | "submit") {
   }
 
   if (item === "name") {
-    nameInputObj!.text =
-      prompt("Enter your name", nameInputObj!.text || "") || nameInputObj!.text
+    openMobileNameInput()
   }
 
   if (item === "submit") {
     //
   }
+}
+
+function sanitizeName(value: string) {
+  return value.replace(/[^a-zA-Z]/g, "").slice(0, MAX_LENGTH)
+}
+
+function updateNameFromMobileInput(nextValue: string) {
+  if (!nameInputObj || !counterObj) {
+    return
+  }
+
+  const sanitized = sanitizeName(nextValue)
+  nameInputObj.text = sanitized
+  counterObj.text = `${sanitized.length}/${MAX_LENGTH}`
+
+  clearError()
+  const { isValid, errorKeys } = validateForm(nameInputObj)
+  if (!isValid) {
+    setErrorItems(errorKeys)
+  }
+
+  paintActiveItem("name")
+}
+
+function openMobileNameInput() {
+  if (!import.meta.client || isOpeningMobileInput) {
+    return
+  }
+
+  isOpeningMobileInput = true
+
+  const input = document.createElement("input")
+  input.type = "text"
+  input.value = nameInputObj?.text || ""
+  input.maxLength = MAX_LENGTH
+  input.autocomplete = "off"
+  input.autocorrect = "off"
+  input.autocapitalize = "words"
+  input.spellcheck = false
+  input.setAttribute("aria-label", "Enter your name")
+  input.style.position = "fixed"
+  input.style.left = "-9999px"
+  input.style.top = "0"
+  input.style.opacity = "0"
+  input.style.pointerEvents = "none"
+
+  const commit = () => {
+    updateNameFromMobileInput(input.value)
+  }
+
+  const cleanup = () => {
+    input.remove()
+    isOpeningMobileInput = false
+  }
+
+  input.addEventListener("input", commit)
+  input.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key !== "Enter") {
+        return
+      }
+
+      event.preventDefault()
+      commit()
+      input.blur()
+    },
+    { passive: false }
+  )
+
+  input.addEventListener(
+    "blur",
+    () => {
+      commit()
+      cleanup()
+    },
+    { once: true }
+  )
+
+  document.body.appendChild(input)
+
+  try {
+    input.focus({ preventScroll: true })
+  } catch {
+    input.focus()
+  }
+
+  input.select()
 }
