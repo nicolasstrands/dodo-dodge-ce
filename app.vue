@@ -14,7 +14,7 @@ useSeoMeta({
   twitterTitle: "Dodo Dodge - Mauritius-made Runner Game",
   twitterDescription: "Play Dodo Dodge, a Mauritius-made runner game where you play as a dodo bird. Dodge hunters or stomp on them!",
   twitterImage: "/og-image.png",
-  themeColor: "#ff6b6b",
+  themeColor: "#0F172A",
 })
 
 // Setup structured data for WebGame
