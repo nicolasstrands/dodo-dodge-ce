@@ -138,11 +138,11 @@ onUnmounted(() => {
           v-if="showSplash"
           class="splash"
           type="button"
-          aria-label="Start game"
+          aria-label="load game"
           @click="startGame"
         >
           <img src="/dodo-dodge-artwork.jpg" alt="Dodo Dodge splash artwork" />
-          <span class="splash-cta">Start Game</span>
+          <span class="splash-cta">Load Game</span>
         </button>
         <canvas id="game"></canvas>
         <div id="anti-landscape-prompt" class="space-y-3">
@@ -210,6 +210,7 @@ onUnmounted(() => {
     .splash-cta {
       font-size: 16px;
       padding: 9px 14px;
+      bottom: max(72px, calc(env(safe-area-inset-bottom) + 20px));
     }
   }
 }
