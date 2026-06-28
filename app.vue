@@ -2,6 +2,40 @@
 import kaplay, { type KAPLAYCtx } from 'kaplay';
 import { konamiCodePlugin } from "./game/core/konami"
 
+// Setup SEO with @nuxtjs/seo
+useSeoMeta({
+  title: "Dodo Dodge - Free Online Runner Game",
+  description: "Play Dodo Dodge, a free online runner game where you play as a dodo bird. Dodge hunters or stomp on them in this exciting Super Mario Bros-style game.",
+  ogType: "website",
+  ogImage: "/og-image.png",
+  ogTitle: "Dodo Dodge - Free Online Runner Game",
+  ogDescription: "Play Dodo Dodge, a free online runner game where you play as a dodo bird. Dodge hunters or stomp on them!",
+  twitterCard: "summary_large_image",
+  twitterTitle: "Dodo Dodge - Free Online Runner Game",
+  twitterDescription: "Play Dodo Dodge, a free online runner game where you play as a dodo bird. Dodge hunters or stomp on them!",
+  twitterImage: "/og-image.png",
+  themeColor: "#ff6b6b",
+})
+
+// Setup structured data for WebGame
+useSchemaOrg([
+  {
+    "@type": "WebGame",
+    "name": "Dodo Dodge",
+    "description": "A free online runner game where you play as a dodo bird and either dodge hunters or stomp on them.",
+    "genre": "Adventure",
+    "applicationCategory": "Game",
+    "url": "https://dodg.app",
+    "image": "/og-image.png",
+    "inLanguage": "en-US",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Dodo Dodge"
+    },
+    "playMode": "SinglePlayer"
+  }
+])
+
 let game = ref<KAPLAYCtx | null>(null)
 const showSplash = ref(true)
 const hasStartedGame = ref(false)

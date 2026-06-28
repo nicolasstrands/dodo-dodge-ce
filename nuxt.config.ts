@@ -10,12 +10,15 @@ export default defineNuxtConfig({
     head: {
       charset: "utf-8",
       viewport: "width=device-width, initial-scale=1",
-      title: "Dodo Dodge",
       link: [
         {
           rel: "icon",
           type: "image/png",
           href: "/favicon.png",
+        },
+        {
+          rel: "apple-touch-icon",
+          href: "/apple-touch-icon.png",
         },
       ],
     },
@@ -61,7 +64,19 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@pinia/nuxt", "nuxt-security"],
+  modules: ["@pinia/nuxt", "nuxt-security", "@nuxtjs/seo"],
+
+  site: {
+    url: "https://dodg.app",
+    name: "Dodo Dodge",
+    description: "Play Dodo Dodge, a free online runner game where you play as a dodo bird. Dodge hunters or stomp on them!",
+    defaultLocale: "en",
+    trailingSlash: false,
+  },
+
+  ogImage: {
+    fonts: [],
+  },
 
   security: {
     // options
