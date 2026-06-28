@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import kaplay, { type KAPLAYCtx } from 'kaplay';
-import { konamiCodePlugin } from "./game/konami"
+import { konamiCodePlugin } from "./game/core/konami"
 
 let game = ref<KAPLAYCtx | null>(null)
 const showSplash = ref(true)
@@ -59,10 +59,23 @@ const updateOrientationPrompt = () => {
 
 // Function to create or reconfigure the game
 const setupGame = () => {
-  // Clean up existing game instance if it exists
   if (game.value) {
-    game.value = null;
-    console.log("Game instance destroyed for reconfiguration");
+    // Replace the canvas element so the old kaplay instance's async WebGL cleanup
+    // targets the detached (old) canvas — not the new one.
+    // kaplay's quit() queues a frameEnd callback that calls gl.clear() / gl.bindTexture() etc.
+    // If we reuse the same canvas, that callback fires on the next frame and wipes the
+    // new context. A fresh canvas element gets a separate WebGL context, so old cleanup
+    // is fully isolated from the new instance.
+    if (import.meta.client) {
+      const oldCanvas = document.getElementById("game") as HTMLCanvasElement | null
+      if (oldCanvas?.parentElement) {
+        const newCanvas = document.createElement("canvas")
+        newCanvas.id = "game"
+        oldCanvas.parentElement.replaceChild(newCanvas, oldCanvas)
+      }
+    }
+    game.value = null
+    console.log("Game instance destroyed for reconfiguration")
   }
   
   // Create new game instance with updated dimensions
@@ -89,11 +102,6 @@ const setupGame = () => {
       }
   });
   
-  // Make sure to reset the canvas reference
-  if (game.value && import.meta.client) {
-    game.value.canvas = document.getElementById("game") as HTMLCanvasElement;
-  }
-
   // Asset loaders rely on Kaplay global APIs, so load after context creation.
   loadAssets();
   
@@ -153,12 +161,9 @@ onMounted(async () => {
       return
     }
 
-    // On mobile, resize events are noisy (keyboard / browser UI) and can re-init kaplay mid-flow.
-    // Keep resize-based reconfiguration desktop-only; mobile uses orientationchange handler.
-    if (hasStartedGame.value && !isPlatformMobile()) {
-      setupGame();
-      useDodoGame();
-    }
+    // Reinitializing kaplay on resize corrupts font texture atlases and causes
+    // other rendering artifacts. The canvas keeps its initialized dimensions;
+    // mobile layout is handled by the orientationchange handler above.
   }, 500)
 
   // watch for resize
@@ -177,6 +182,11 @@ onUnmounted(() => {
   }
 
   if (game.value) {
+    try {
+      game.value.quit()
+    } catch (_) {
+      // ignore errors during cleanup
+    }
     game.value = null;
     console.log("Game destroyed");
   }

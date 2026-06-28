@@ -1,4 +1,4 @@
-import type { Score } from "~/types"
+import type { Score } from "~/types/score"
 
 export function selectTopScores(scores: Score[], count: number): Score[] {
   if (!Array.isArray(scores) || count <= 0) {

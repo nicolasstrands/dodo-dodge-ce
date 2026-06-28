@@ -1,5 +1,5 @@
-import loadSounds from "../game/sounds";
-import loadSprites from "../game/sprites";
+import loadSounds from "../../game/config/sounds";
+import loadSprites from "../../game/config/sprites";
 
 export default function () {
   loadSounds();

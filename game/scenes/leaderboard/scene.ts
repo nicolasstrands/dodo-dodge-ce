@@ -1,17 +1,16 @@
-import type { Score } from "~/types"
-import { MY_SCORES_UPPDATED } from "../event-names"
+import type { Score } from "~/types/score"
 
-export const MY_SCORE_SCENE_NAME = "my-score"
+export const LEADERBOARD_SCENE_NAME = "leaderboard"
 
 const eventEmitter = useEventEmitter()
 
 // @ts-expect-error
-eventEmitter.on(MY_SCORES_UPPDATED, (scores: Score[]) => {
+eventEmitter.on("highscores-updated", (scores: Score[]) => {
   showScores(scores)
 })
 
-export default async function setMyScoresScene() {
-  scene(MY_SCORE_SCENE_NAME, () => setScene())
+export default async function setLeaderboardScene() {
+  scene(LEADERBOARD_SCENE_NAME, () => setScene())
 }
 
 function setScene() {
@@ -22,13 +21,13 @@ function setScene() {
   //   go("splash")
   // })
   onButtonPress("back", () => {
-    go("splash");
-  });
+    go("splash")
+  })
 }
 
 function addTitle() {
   add([
-    text("My Scores", {
+    text("Leaderboard", {
       font: "arcade",
       size: 48,
     }),

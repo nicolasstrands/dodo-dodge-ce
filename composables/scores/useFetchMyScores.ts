@@ -1,5 +1,5 @@
-import type { Score } from "~/types"
-import { selectTopScores } from "~/utils/topScores"
+import type { Score } from "~/types/score"
+import { selectTopScores } from "~/utils/helpers/topScores"
 
 export const useFetchMyScores = async (count: number = 15, email: string) => {
   const { getDataByProperty } = useIndexedDB()

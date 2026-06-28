@@ -1,4 +1,4 @@
-import type { Score } from "~/types"
+import type { Score } from "~/types/score"
 
 export const useScoreStore = defineStore("useScoreStore", () => {
   const highscores = ref<Score[]>([])

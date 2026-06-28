@@ -4,15 +4,14 @@ import {
   MY_SCORES_UPPDATED as MY_SCORES_UPDATED,
   REGISTRATION_SUBMITTED,
   RELOAD_MY_SCORES,
-} from "~/game/event-names";
-import setLeaderboardScene from "~/game/leaderboard/scene";
-import setMyScoresScene from "~/game/my-scores/scene";
-import setRegistrationScene from "~/game/registration/scene";
-
-import setMainMenuScene from "../game/main-menu/scene";
-import setGameScene from "../game/the-game-duh/scene";
-import setGameOverScene from "../game/gameover/scene";
-import setIntroScene from "../game/intro/scene";
+} from "~/game/core/event-names";
+import setLeaderboardScene from "~/game/scenes/leaderboard/scene";
+import setMyScoresScene from "~/game/scenes/my-scores/scene";
+import setRegistrationScene from "~/game/scenes/registration/scene";
+import setMainMenuScene from "~/game/scenes/main-menu/scene";
+import setGameScene from "~/game/scenes/gameplay/scene";
+import setGameOverScene from "~/game/scenes/gameover/scene";
+import setIntroScene from "~/game/scenes/intro/scene";
 
 const storedName =
   (import.meta.client &&

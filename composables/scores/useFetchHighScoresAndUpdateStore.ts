@@ -1,5 +1,5 @@
-import type { Score } from "~/types"
-import { measureAsync } from "~/utils/measureAsync"
+import type { Score } from "~/types/score"
+import { measureAsync } from "~/utils/helpers/measureAsync"
 
 export default async function useFetchHighScoresAndUpdateStore() {
   const store = useScoreStore()

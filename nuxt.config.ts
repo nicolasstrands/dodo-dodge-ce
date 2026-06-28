@@ -21,6 +21,17 @@ export default defineNuxtConfig({
     },
   },
 
+  imports: {
+    dirs: [
+      'composables/game',
+      'composables/scores',
+      'composables/storage',
+      'utils/canvas',
+      'utils/platform',
+      'utils/helpers',
+    ],
+  },
+
   vite: {
     optimizeDeps: {
       include: [

@@ -1,6 +1,6 @@
 import * as v from "valibot"
 import type { Color, GameObj, TextComp } from "kaplay"
-import { REGISTRATION_SUBMITTED } from "../event-names"
+import { REGISTRATION_SUBMITTED } from "../../core/event-names"
 
 const eventEmitter = useEventEmitter()
 

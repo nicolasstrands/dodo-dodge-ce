@@ -1,4 +1,4 @@
-import type { Score } from "~/types"
+import type { Score } from "~/types/score"
 
 export const useHighScores = async (count: number = 15) => {
   const { getTopByIndex } = useIndexedDB()

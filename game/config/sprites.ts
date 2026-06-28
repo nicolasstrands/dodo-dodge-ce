@@ -1,4 +1,4 @@
-import timeStates from "../utils/timeStates";
+import timeStates from "../../utils/helpers/timeStates";
 
 export default function loadSprites() {
   loadSprite("dodo", "sprites/Dodo_10x.png", {

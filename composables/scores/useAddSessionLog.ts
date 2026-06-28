@@ -1,4 +1,4 @@
-import { useIndexedDB } from "./useIndexedDB"
+import { useIndexedDB } from "../storage/useIndexedDB"
 
 export const useAddSessionLog = async ({
   playername,
