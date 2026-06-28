@@ -533,7 +533,7 @@ function openMobileNameInput() {
   input.value = nameInputObj?.text || ""
   input.maxLength = MAX_LENGTH
   input.autocomplete = "off"
-  input.autocorrect = "off"
+  input.setAttribute("autocorrect", "off")
   input.autocapitalize = "words"
   input.spellcheck = false
   input.setAttribute("aria-label", "Enter your name")

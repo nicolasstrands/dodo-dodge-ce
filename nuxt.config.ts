@@ -66,7 +66,7 @@ export default defineNuxtConfig({
   security: {
     // options
     corsHandler: {
-      origin: ["localhost", "game.mscc.mu", "dodododge.vercel.app"],
+      origin: ["localhost", "game.mscc.mu", "dodododge.vercel.app", "dodg.app"],
     },
     headers: {
       contentSecurityPolicy: {
@@ -88,7 +88,12 @@ export default defineNuxtConfig({
         "upgrade-insecure-requests": isProd,
         "frame-src": ["'self'", "https:"],
       },
-      strictTransportSecurity: isProd,
+      strictTransportSecurity: isProd
+        ? {
+            maxAge: 31536000,
+            includeSubdomains: true,
+          }
+        : false,
     },
   },
 });

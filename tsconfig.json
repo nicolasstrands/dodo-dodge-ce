@@ -3,6 +3,5 @@
   "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
     "types": ["node"]
-  },
-  "include": ["types/*.d.ts"]
+  }
 }

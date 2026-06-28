@@ -34,8 +34,8 @@ function setScene(
 
   addHeaderText(version);
 
-  if (!import.meta.dev) {
-    const msccLogo = addMSCCLogo(floorHeight);
+  if (shouldShowMSCCLogo()) {
+    addMSCCLogo(floorHeight);
   }
   const gameTitle = addGameTitleLogo();
   addGround(floorHeight);
@@ -202,6 +202,14 @@ function addMSCCLogo(floorHeight: number) {
     scale(0.5),
     z(10),
   ])
+}
+
+function shouldShowMSCCLogo() {
+  return (
+    !import.meta.dev &&
+    typeof window !== "undefined" &&
+    window.location.hostname === "game.mscc.mu"
+  )
 }
 
 function addGameTitleLogo() {
