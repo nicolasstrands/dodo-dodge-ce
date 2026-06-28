@@ -7,6 +7,29 @@ const showSplash = ref(true)
 const hasStartedGame = ref(false)
 let handleOrientationChange: (() => void) | null = null
 let handleResize: (() => void) | null = null
+let lastViewportWidth = 0
+let lastViewportHeight = 0
+
+const KEYBOARD_HEIGHT_DELTA_PX = 120
+
+const isEditableElementFocused = () => {
+  if (!import.meta.client) {
+    return false
+  }
+
+  const active = document.activeElement as HTMLElement | null
+  if (!active) {
+    return false
+  }
+
+  const tag = active.tagName
+  return (
+    active.isContentEditable ||
+    tag === 'INPUT' ||
+    tag === 'TEXTAREA' ||
+    tag === 'SELECT'
+  )
+}
 
 const startGame = async () => {
   if (hasStartedGame.value) {
@@ -78,12 +101,18 @@ const setupGame = () => {
 }
 
 onMounted(async () => {
-  if (import.meta.dev) {
-    // const eruda = (await import('eruda')).default
-    // eruda.init()
+  if (import.meta.dev && isPlatformMobile()) {
+    const w = window as Window & { __ERUDA_STARTED__?: boolean }
+    if (!w.__ERUDA_STARTED__) {
+      const eruda = (await import('eruda')).default
+      eruda.init()
+      w.__ERUDA_STARTED__ = true
+    }
   }
 
   updateOrientationPrompt()
+  lastViewportWidth = window.innerWidth
+  lastViewportHeight = window.innerHeight
 
   // watch for orientation change
   handleOrientationChange = () => {
@@ -100,8 +129,33 @@ onMounted(async () => {
   window.addEventListener('orientationchange', handleOrientationChange)
 
   handleResize = debounce(() => {
-    // Always reinitialize for screens <= 1024px to adapt to full viewport
-    if (hasStartedGame.value && (!isPlatformMobile() || window.innerWidth <= 1024)) {
+    const nextWidth = window.innerWidth
+    const nextHeight = window.innerHeight
+
+    if (isPlatformMobile() && isEditableElementFocused()) {
+      lastViewportWidth = nextWidth
+      lastViewportHeight = nextHeight
+      return
+    }
+
+    const widthChanged = Math.abs(nextWidth - lastViewportWidth) > 1
+    const heightDelta = Math.abs(nextHeight - lastViewportHeight)
+    const keyboardResizeLikely =
+      isPlatformMobile() &&
+      !widthChanged &&
+      heightDelta >= KEYBOARD_HEIGHT_DELTA_PX &&
+      isEditableElementFocused()
+
+    lastViewportWidth = nextWidth
+    lastViewportHeight = nextHeight
+
+    if (keyboardResizeLikely) {
+      return
+    }
+
+    // On mobile, resize events are noisy (keyboard / browser UI) and can re-init kaplay mid-flow.
+    // Keep resize-based reconfiguration desktop-only; mobile uses orientationchange handler.
+    if (hasStartedGame.value && !isPlatformMobile()) {
       setupGame();
       useDodoGame();
     }

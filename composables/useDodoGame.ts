@@ -325,5 +325,5 @@ export default function () {
   setGameOverScene(mainMenuMusic, gameMusic);
 
   /* Show intro splash only in development */
-  go(import.meta.dev ? "intro" : "splash");
+  go(import.meta.dev ? "splash" : "splash");
 }

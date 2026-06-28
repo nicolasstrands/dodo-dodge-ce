@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const isProd = process.env.NODE_ENV === "production"
+
 export default defineNuxtConfig({
   devtools: { enabled: false },
   compatibilityDate: '2025-05-17',
@@ -72,9 +74,10 @@ export default defineNuxtConfig({
           "'strict-dynamic'",
           "'nonce-{{nonce}}'",
         ],
-        "upgrade-insecure-requests": true,
+        "upgrade-insecure-requests": isProd,
         "frame-src": ["'self'", "https:"],
       },
+      strictTransportSecurity: isProd,
     },
   },
 });

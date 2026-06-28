@@ -51,18 +51,8 @@ function setScene() {
   submitButtonObj = submitButton
   submitButtonBgObj = submitButtonBg
 
-  // put all the input objects in an array of objects
-  const inputObjects = [
-    [
-      nameInputObj,
-      nameLabelObj,
-      counterObj,
-      nameErrorMessageObj,
-      nameUnderlineObj,
-    ],
-
-    [],
-  ]
+  // reset in case it was stuck from a previous scene visit
+  isOpeningMobileInput = false
 
   // paint first item as active by default
   paintActiveItem("name")
@@ -77,30 +67,35 @@ function setScene() {
     paintActiveItem(getNextItem())
   })
 
-  // loop through input objects and add handling for mobile
-  inputObjects.forEach((inputObject, index) => {
-    let itemName: "name" | "submit" = "name"
+  // Native touchstart listener for mobile keyboard — must run synchronously
+  // within the user gesture context so iOS Safari allows input.focus().
+  if (import.meta.client && isPlatformMobile()) {
+    const canvas = document.getElementById("game") as HTMLCanvasElement | null
+    const onCanvasTouch = (e: TouchEvent) => {
+      if (activeItem !== "name") return
+      const touch = e.touches[0]
+      if (!touch || !canvas) return
 
-    switch (index) {
-      case 0:
-        itemName = "name"
-        break
-      case 1:
-        itemName = "submit"
-        break
-    }
+      // Convert native touch coordinates to kaplay game space
+      const rect = canvas.getBoundingClientRect()
+      const gameX = (touch.clientX - rect.left) * (width() / rect.width)
+      const gameY = (touch.clientY - rect.top) * (height() / rect.height)
+      const touchVec = vec2(gameX, gameY)
 
-    for (const obj of inputObject) {
-      obj.onTouchStart((pos: any, t: any) => {
-        console.log("Touch start", itemName)
-        if (obj.isHovering()) {
-          console.log("Touched", itemName)
-          handleMobileInput(itemName)
-          paintActiveItem(itemName)
-        }
-      })
+      // Only open the keyboard when the tap is within the name input area
+      const nameAreaObjects = [nameInputObj, nameLabelObj, counterObj, nameUnderlineObj]
+      const hitNameArea = nameAreaObjects.some((obj) => obj?.hasPoint(touchVec))
+      if (hitNameArea) {
+        openMobileNameInput()
+      }
     }
-  })
+    canvas?.addEventListener("touchstart", onCanvasTouch, { passive: true })
+
+    // Clean up when the scene is torn down
+    nameInputObj.onDestroy(() => {
+      canvas?.removeEventListener("touchstart", onCanvasTouch)
+    })
+  }
 
   function getActiveItemIndex() {
     return options.indexOf(activeItem)
@@ -163,6 +158,10 @@ import.meta.client &&
 
     paintActiveItem(activeItem)
     clearError()
+    if (nameInputObj.text.length === 0) {
+      return
+    }
+
     const { isValid, errorKeys } = validateForm(nameInputObj)
     if (!isValid) {
       setErrorItems(errorKeys)
@@ -369,31 +368,14 @@ function validateForm(name: GameObj) {
     name: v.pipe(v.string(), v.minLength(MIN_LENGTH), v.maxLength(MAX_LENGTH)),
   })
 
-  try {
-    v.parse(LoginSchema, {
-      name: name.text,
-    })
-  } catch (error) {
-    // @ts-expect-error
-    const issue = error.issues[0].path[0]
-    console.log(
-      "Error:",
-      issue.key,
-      "value:",
-      issue.value,
-      "message:",
-      // @ts-expect-error
-      error.message
-    )
+  const result = v.safeParse(LoginSchema, {
+    name: name.text,
+  })
 
-    console.log(JSON.stringify(error, null, 2))
-
-    // @ts-expect-error
-    errorKeys = error.issues.map((issue: any) => {
-      return issue.path[0].key
-    })
-
-    setErrorItems(errorKeys)
+  if (!result.success) {
+    errorKeys = result.issues
+      .map((issue: any) => issue.path?.[0]?.key)
+      .filter((key: unknown): key is "name" => key === "name")
 
     isValid = false
   }
@@ -526,6 +508,11 @@ function updateNameFromMobileInput(nextValue: string) {
   counterObj.text = `${sanitized.length}/${MAX_LENGTH}`
 
   clearError()
+  if (sanitized.length === 0) {
+    paintActiveItem("name")
+    return
+  }
+
   const { isValid, errorKeys } = validateForm(nameInputObj)
   if (!isValid) {
     setErrorItems(errorKeys)
