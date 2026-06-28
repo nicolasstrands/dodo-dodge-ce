@@ -202,15 +202,17 @@ onUnmounted(() => {
 
   @media (max-width: 900px) {
     .splash-cta {
-      font-size: 20px;
+      font-size: 22px;
+      padding: 11px 18px;
+      bottom: 88px;
     }
   }
 
   @media (max-width: 560px) {
     .splash-cta {
-      font-size: 16px;
-      padding: 9px 14px;
-      bottom: max(72px, calc(env(safe-area-inset-bottom) + 20px));
+      font-size: 18px;
+      padding: 10px 16px;
+      bottom: max(110px, calc(env(safe-area-inset-bottom) + 36px));
     }
   }
 }
